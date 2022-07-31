@@ -1,47 +1,33 @@
+import { Router } from "./Routes/index";
 import { useEffect, useState } from "react";
+
 import Theme from "./Theme";
 import GlobalStyle from "./Global/styles.js";
-import ModelContainer from "./Models";
-import Home from "./Pages/Home";
-
+import { ThemeButton } from "./Components/Button";
+import constants from "./Constants";
 const App = () => {
   // theme state
-  const [selectedTheme, setSelectedTheme] = useState("dark");
+  const [selectedTheme, setSelectedTheme] = useState(constants.THEME_LIGHT);
 
   const HandleThemeChange = () => {
-    let newTheme = "";
-    if (selectedTheme === "dark") newTheme = "light";
-    else newTheme = "dark";
-    setSelectedTheme(newTheme);
-    localStorage.setItem("current-theme", newTheme);
-    console.log({ localStorage });
+    setSelectedTheme((oldTheme) => Number(!oldTheme));
+    localStorage.setItem("current-theme", Number(!selectedTheme));
   };
 
   // react hook to get the theme selected by the user that is saved in local storage
   useEffect(() => {
     const currentTheme = localStorage.getItem("current-theme");
     if (currentTheme) {
-      setSelectedTheme(currentTheme);
+      setSelectedTheme((oldTheme) => Number(currentTheme));
     }
   }, []);
 
   return (
     <Theme themeMode={selectedTheme}>
       <GlobalStyle />
-      <Test HandleThemeChange={HandleThemeChange} />
-      <ModelContainer />
-      {/* <Home/> */}
+      <Router />
+      <ThemeButton HandleThemeChange={HandleThemeChange} />
     </Theme>
   );
 };
 export default App;
-
-function Test({ HandleThemeChange }) {
-  return (
-    <>
-      {" "}
-      <h1>Hey</h1>
-      <button onClick={HandleThemeChange}>theme test</button>
-    </>
-  );
-}

@@ -8,7 +8,6 @@ const ModelContainer = () => {
     { length: 400 },
     () => Math.random() * 10
   );
-  console.log({ cricketBallsArray });
   return (
     <Canvas
       style={{
@@ -35,9 +34,9 @@ const ModelContainer = () => {
       <Ball position={[5.9, -3, 0]} rotation={0.007} y={0.02} scale={0.008} />
       <Ball position={[8.9, 6, 0]} rotation={0.01} y={0.02} scale={0.005} />
 
-      {cricketBallsArray.map((element) => {
+      {cricketBallsArray.map((element, key) => {
         return (
-          <Ball
+          <Ball key={key}
             position={[
               1 + element + Math.random() * 2,
               element - Math.random() * 3,

@@ -21,6 +21,7 @@ const GlobalStyle = createGlobalStyle`
         -moz-osx-font-smoothing: grayscale;
         width: 100vw;
         height: 100vh;
+        overflow: hidden;
     }
 
     h1{

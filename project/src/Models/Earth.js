@@ -14,7 +14,7 @@ function Earth(props) {
   return (
     <mesh {...props} ref={mesh} scale={2}>
       <sphereBufferGeometry args={[0.8, 50]} />
-      <meshStandardMaterial color={"hotpink"} map={colorMap} />
+      <meshStandardMaterial color={"white"} map={colorMap} />
       <spotLight />
     </mesh>
   );
