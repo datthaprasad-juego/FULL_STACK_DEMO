@@ -9,6 +9,7 @@ import ThemeContext from "../../Context/themeContext";
 import { useState } from "react";
 import Popup from "../../Popup";
 import useFetch from "../../Hooks/useFetch";
+import fetch from "../../Hooks/fetch";
 
 const remainingCardsOption = {
   loop: true,
@@ -29,46 +30,35 @@ const homeOption = {
 
 const GamePlay = () => {
   const { setPopup } = useContext(ThemeContext);
-
-  const [isLoading, setLoading] = useState(false);
-  const [activePlayer, setActivePlayer] = useState({
-    name: "MS Dhoni",
-    centuries: 70,
-    best: 183,
-    rank: 4,
-    six: 100,
-    four: 78,
-    trophie: 2,
-  });
-  const [remainingCards, setRemainingCards] = useState(52);
+  // const [activePlayer, setActivePlayer] = useState({});
+  // const [remainingCards, setRemainingCards] = useState(0);
 
   //TODO : useEffect and fetch data from server only one time
-  let { data, loading, error } = useFetch("http://localhost:3000/favicon.ico", {});
-  console.log({ data, loading, error });
+  let {
+    data,
+    loading: isLoading,
+    error,
+  } = useFetch("http://localhost:5000/initiateGame", "get");
 
-  const onBetClick = (selectedAtrributeIndex) => {
-    //run for two seconds
-    setTimeout(() => {
-      setPopup();
-
-      //TODO : request api and get response from server based on that update data and popup
-      // setPopup(
-      //   <h1>Will update in few days... - {selectedAtrributeIndex}</h1>,
-      //   false
-      // );
-      setActivePlayer({
-        name: "MS Dhoni 2",
-        centuries: 70,
-        best: 183,
-        rank: 4,
-        six: 100,
-        four: 78,
-        trophie: 2,
-      });
-    }, 2000);
-
+  const onBetClick = async (selectedAtrributeIndex) => {
     setPopup("", true);
+    let response = await fetch("http://localhost:5000/betCard", "post", {
+      selectedAtrributeIndex,
+      remainingCards: data.remainingCards,
+    });
+    data.remainingCards = response.data.remainingCards;
+    data.activePlayer = response.data.activePlayer;
+    setPopup();
+    console.log({ data });
   };
+
+  if (data && data.remainingCards === 0) {
+    return (
+      <Container>
+        <Popup popupContent={"Game Over"} isLoading={false} home={true} />
+      </Container>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -82,9 +72,9 @@ const GamePlay = () => {
     <Container>
       <FloatingButton floatingContent="Remaining cards">
         <Lottie options={remainingCardsOption} width={"100%"} />
-        <RemainingCount>{remainingCards}</RemainingCount>
+        <RemainingCount>{data.remainingCards}</RemainingCount>
       </FloatingButton>
-      <Card playerDetails={activePlayer} onBetClick={onBetClick} />
+      <Card playerDetails={data.activePlayer} onBetClick={onBetClick} />
       <FloatingButton
         onClick={() => {
           window.location = "/";
