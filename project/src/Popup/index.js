@@ -1,12 +1,18 @@
-// import { Container } from "./styles";
+import { CloseButton, Container, PopupStyle } from "./styles";
+import ReactDOM from "react-dom";
+import LoadingBar from "../Components/Loading";
 
-const Popup = () => {
-  return <div style={{
-    width: "50vw",
-    height: "50vh",
-    position: "absolute",
-    top: "0",
-    background: "white"
-  }} />;
+const Popup = ({ setPopup, popupContent, isLoading=1 }) => {
+  return ReactDOM.createPortal(
+    <>
+      <PopupStyle />
+      <Container>
+        {!isLoading && (popupContent || "")}
+        {isLoading && <LoadingBar />}
+        {!isLoading && <CloseButton onClick={() => setPopup()}>x</CloseButton>}
+      </Container>
+    </>,
+    document.getElementById("modal")
+  );
 };
 export default Popup;

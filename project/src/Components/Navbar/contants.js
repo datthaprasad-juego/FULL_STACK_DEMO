@@ -1,5 +1,5 @@
 export const naviagtion = {
-  1: [
+  CRICKET: [
     {
       link: "/",
       type: "text",
@@ -11,26 +11,26 @@ export const naviagtion = {
       content: "Profile",
     },
     {
-      link: "/play",
+      link: "/gamePlay",
       type: "text",
       content: "Play",
-    },
-    {
-      link: "/logout",
-      type: "button",
-      content: "Logout",
     },
   ],
 
   0: [
     {
+      link: "/",
+      type: "text",
+      content: "Home",
+    },
+    {
       link: "/register",
-      type: "button",
+      type: "text",
       content: "Register",
     },
     {
       link: "/login",
-      type: "button",
+      type: "text",
       content: "Login",
     },
   ],

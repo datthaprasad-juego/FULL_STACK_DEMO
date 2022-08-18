@@ -1,21 +1,24 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import ThemeContext from "../../Context/themeContext";
+import { ToggleButton } from "../Button";
 import { naviagtion } from "./contants";
 import {
   Button,
   Conatiner,
   Logo,
   LogoContainer,
-  Menu,
-  MobileMenu,
+  MobileMenuLogo,
+  MobileMenuNavigations,
+  MobileNavContainer,
   Navigation,
   NavigationContainer,
-  NavMenu,
   Text,
 } from "./styles";
 
-const Navbar = () => {
-  const navigations = naviagtion[0];
+const Navbar = ({active}) => {
+  const navigations = naviagtion.CRICKET;
   const [expand, setExpand] = useState(0);
+  const { HandleThemeChange } = useContext(ThemeContext);
   return (
     <Conatiner>
       <LogoContainer>
@@ -27,38 +30,51 @@ const Navbar = () => {
           if (navigation.type === "button")
             return (
               <Navigation key={key}>
-                <Button>{navigation.content}</Button>
+                <Button href={naviagtion.link}>{navigation.content}</Button>
               </Navigation>
             );
           else
             return (
               <Navigation key={key}>
-                <Text>{navigation.content}</Text>
+                <Text
+                  to={navigation.link}
+                  active={navigation.content.toLowerCase() === active}
+                >
+                  {navigation.content}
+                </Text>
               </Navigation>
             );
         })}
+        <Navigation
+          onClick={() => {
+            HandleThemeChange();
+          }}
+        >
+          <ToggleButton />
+        </Navigation>
       </NavigationContainer>
-      <NavMenu>
-        <Menu onClick={() => setExpand((oldValue) => !oldValue)}>
+
+      <MobileNavContainer>
+        <MobileMenuLogo onClick={() => setExpand((oldValue) => !oldValue)}>
           {!expand ? ":::" : "x"}
-        </Menu>
-        <MobileMenu show={expand}>
-        {navigations.map((navigation, key) => {
-          if (navigation.type === "button")
-            return (
-              <Navigation key={key}>
-                <Button>{navigation.content}</Button>
-              </Navigation>
-            );
-          else
-            return (
-              <Navigation key={key}>
-                <Text>{navigation.content}</Text>
-              </Navigation>
-            );
-        })}
-        </MobileMenu>
-      </NavMenu>
+        </MobileMenuLogo>
+        <MobileMenuNavigations show={expand}>
+          {navigations.map((navigation, key) => {
+            if (navigation.type === "button")
+              return (
+                <Navigation key={key}>
+                  <Button>{navigation.content}</Button>
+                </Navigation>
+              );
+            else
+              return (
+                <Navigation key={key}>
+                  <Text to={navigation.link}>{navigation.content}</Text>
+                </Navigation>
+              );
+          })}
+        </MobileMenuNavigations>
+      </MobileNavContainer>
     </Conatiner>
   );
 };

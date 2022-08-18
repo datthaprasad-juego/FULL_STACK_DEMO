@@ -17,14 +17,17 @@ export const HeroContainer = styled.div`
 export const HeroText = styled.h1`
   color: ${({ theme }) => theme.color};
   margin-top: 20vh;
+  margin-bottom: 1vh;
   margin-left: 3vh;
-  font-size: 25vmin;
+  font-size: 12vmax;
   user-select: none;
+  font-family: 'Orbitron', sans-serif;
 `;
 
 export const HeroSubtitle = styled.p`
   color: ${({ theme }) => theme.color};
   margin-left: 3vh;
+  margin-top: 1.6rem;
   font-size: 4vmin;
   user-select: all;
 `;

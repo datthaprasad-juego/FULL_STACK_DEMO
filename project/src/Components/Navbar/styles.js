@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
 export const Conatiner = styled.nav`
@@ -23,7 +24,6 @@ export const LogoContainer = styled.div`
   align-items: center;
   justify-content: center;
 `;
-
 export const Logo = styled.span`
   font-size: 2rem;
   color: ${({ theme }) => theme.color};
@@ -45,16 +45,17 @@ export const NavigationContainer = styled.ul`
     display: none;
   }
 `;
-
 export const Navigation = styled.li`
   width: 6rem;
   display: flex;
   justify-content: center;
   align-items: center;
 
+  background: ${({ active }) => (active ? "rgba(0,0,0,0.5)" : "")};
+
   @media only screen and (max-width: 600px) {
     width: 30%;
-    margin-top:1vh;
+    margin-top: 1vh;
   }
 `;
 
@@ -76,21 +77,42 @@ export const Button = styled.a`
     transform: skewX(-15deg);
   }
 `;
-
-export const Text = styled.h2`
+export const Text = styled(Link)`
   text-align: center;
+  text-transform: uppercase;
   width: 100%;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
+  font-weight: 500;
   color: ${({ theme }) => theme.color};
   user-select: none;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    width: 100%;
+    height: 0.1rem;
+    color: white;
+    background-color: ${({ theme }) => theme.color};
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    transform: ${({ active }) => (active ? `scale(1)` : `scale(0)`)};
+    transition: transform 0.2s ease-in;
+  }
 
   &:hover {
-    transform: skewX(-15deg);
-    text-decoration: underline overline;
+    &::after {
+      transform: scale(1);
+    }
   }
 `;
 
-export const NavMenu = styled.div`
+/* <---------------- MOBILE MENU ------------------> */
+
+export const MobileNavContainer = styled.div`
   display: none;
 
   @media only screen and (max-width: 600px) {
@@ -102,7 +124,7 @@ export const NavMenu = styled.div`
   }
 `;
 
-export const Menu = styled.span`
+export const MobileMenuLogo = styled.span`
   font-size: 2rem;
   color: ${({ theme }) => theme.color};
   width: 3rem;
@@ -113,14 +135,14 @@ export const Menu = styled.span`
   cursor: pointer;
   z-index: 100;
 `;
-export const MobileMenu = styled.div`
+export const MobileMenuNavigations = styled.div`
   transition: all 0.5s ease-in;
   position: absolute;
   width: ${({ show }) => (show ? "100vw" : "0")};
   height: ${({ show }) => (show ? "100vh" : "0")};
   top: 0;
   right: 0;
-  background: ${({theme})=>theme.mobileMenu.background};
+  background: ${({ theme }) => theme.mobileMenu.background};
   z-index: 1;
   opacity: ${({ show }) => (show ? "1" : "0")};
 

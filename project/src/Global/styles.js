@@ -20,8 +20,7 @@ const GlobalStyle = createGlobalStyle`
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         width: 100vw;
-        height: 100vh;
-        overflow: hidden;
+        overflow-x: hidden;
     }
 
     h1{
