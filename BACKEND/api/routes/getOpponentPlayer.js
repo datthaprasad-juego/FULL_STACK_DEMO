@@ -1,11 +1,28 @@
-module.exports = (req, res) => {
-  const { userId } = req.body;
-  const playerDetail = {
-    name: "Dp shetty",
-    points: 1000,
-  };
-  const playerFound = true;
+const { findOne } = require("../../mysql/interface");
+const { isAuthenticatedUser } = require("../helper/user.helper");
+const { sendResponse } = require("../response");
 
-  for (let i = 0; i < 500000070; i++) {}
-  res.send({ playerDetail, playerFound });
+module.exports = async (req, res) => {
+  const { access_token } = req.headers;
+  const authenticatedUser = await isAuthenticatedUser(res, access_token);
+  if (!authenticatedUser) return;
+
+  const user = await findOne(
+    "user",
+    `user_id != ${authenticatedUser.user_id} AND is_verified_user = 1 ORDER BY RAND()`
+  );
+
+  if (user) {
+    const playerDetail = {
+      user_id: user.user_id,
+      points: authenticatedUser.points,
+      name: user.name,
+    };
+
+    return sendResponse(res, "SUCCESS", {
+      playerDetail,
+    });
+  } else {
+    return sendResponse(res, "FAILED", {});
+  }
 };

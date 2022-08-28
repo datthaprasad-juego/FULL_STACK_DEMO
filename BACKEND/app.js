@@ -9,7 +9,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(router);
+require("dotenv").config();
 
-app.listen(5000, () => {
-  console.log("Example app listening on port 5000!");
+app.listen(process.env.PORT || 5001, () => {
+  console.log("Example app listening on port", process.env.PORT || 5000);
 });

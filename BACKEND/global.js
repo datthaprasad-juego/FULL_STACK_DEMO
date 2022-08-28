@@ -1,5 +1,14 @@
 const global = {};
-global.playersData = [
+
+global.DEFAULT_POINTS = 500;
+global.ROOM_INITIATE_COST = 50;
+
+global.USER_STATUS = {
+  REGISTERED: 0,
+  VERIFIED: 1,
+};
+
+global.DEFAULT_CARDS = [
   {
     name: "King Kohli",
     centuries: 70,
