@@ -37,6 +37,23 @@ const insertOne = async (table, data = {}) => {
   }
 };
 
+const insertMany = async (table, datas = []) => {
+  try {
+    const con = await connection();
+    const query = `INSERT INTO ${table}(${Object.keys(datas[0]).map(
+      (key) => key
+    )}) VALUES ${datas.map(
+      (data) => `(${Object.values(data).map((value) => `'${value}'`)})`
+    )}`;
+
+    const { insertId, affectedRows } = (await con.execute(query))[0];
+    return { insertId, affectedRows };
+  } catch (err) {
+    console.log("insertOne", err);
+    return;
+  }
+};
+
 const updateOne = async (table, where, update) => {
   try {
     const con = await connection();
@@ -50,4 +67,4 @@ const updateOne = async (table, where, update) => {
   }
 };
 
-module.exports = { findAll, findOne, insertOne, updateOne };
+module.exports = { findAll, findOne, insertOne, updateOne, insertMany };

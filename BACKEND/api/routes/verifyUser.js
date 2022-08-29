@@ -1,5 +1,5 @@
 const global = require("../../global");
-const { findOne, updateOne } = require("../../mysql/interface");
+const { findOne, updateOne, insertMany } = require("../../mysql/interface");
 const { sendResponse } = require("../response");
 
 module.exports = async (req, res) => {
@@ -18,6 +18,13 @@ module.exports = async (req, res) => {
       global.DEFAULT_POINTS
     }, game_cards = '${JSON.stringify(global.DEFAULT_CARDS)}'`
   );
-  if (result) return sendResponse(res, "SUCCESS", {});
-  else return sendResponse(res, "FAILED", {});
+
+  if (result) {
+    let cards = [];
+    global.DEFAULT_CARDS.forEach((data) => {
+      cards.push({ user_id: user.user_id, master_card_id: data.rank });
+    });
+    await insertMany("cards", cards);
+    return sendResponse(res, "SUCCESS", {});
+  } else return sendResponse(res, "FAILED", {});
 };
