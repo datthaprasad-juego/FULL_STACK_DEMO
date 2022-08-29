@@ -1,65 +1,125 @@
-module.exports = (req, res) => {
-  const { selectedAttributeIndex, selectedAttributeValue, remainingCards } =
-    req.body;
-  const playersData = [
-    {
-      name: "King Kohli",
-      rank: 1,
-      best: 183,
-      centuries: 70,
-      six: 100,
-      four: 78,
-      trophie: 2,
-    },
-    {
-      name: "AB de Villiers",
-      rank: 2,
-      best: 183,
-      centuries: 30,
-      six: 150,
-      four: 70,
-      trophie: 2,
-    },
-    {
-      name: "Rohit Sharma",
-      rank: 3,
-      best: 268,
-      centuries: 43,
-      six: 158,
-      four: 90,
-      trophie: 14,
-    },
-    {
-      name: "MS Dhoni",
-      rank: 4,
-      best: 183,
-      centuries: 30,
-      six: 150,
-      four: 70,
-      trophie: 12,
-    },
-  ];
+const global = require("../../global");
+const { findOne, updateOne, insertOne } = require("../../mysql/interface");
+const { isAuthenticatedUser } = require("../helper/user.helper");
+const { sendResponse } = require("../response");
 
-  //get random opponent card
-  const opponentCard =
-    playersData[Math.floor(Math.random() * playersData.length)];
+module.exports = async (req, res) => {
+  const { selectedAttributeIndex, selectedAttributeValue, roomId } = req.body;
+  const { access_token } = req.headers;
+
+  //Variables
+  let isGameWon = 0;
+
+  //Authentiaction
+  const authenticatedUser = await isAuthenticatedUser(res, access_token);
+  if (!authenticatedUser) return;
+
+  //Validate room
+  const room = await findOne("room", `room_id = ${roomId} AND status = 1`);
+  if (!room || room.user_id != authenticatedUser.user_id) {
+    return sendResponse(res, "FAILED", {});
+  }
+
+  //Get opponent Active Card
+  const opponentCard = room.opponent_cards[room.opponent_active_index];
   const opponentSelectedAttribute =
     Object.keys(opponentCard)[selectedAttributeIndex];
   const opponentSelectedAttributeValue =
     opponentCard[opponentSelectedAttribute];
 
-  let isGameWon = 0;
-  if (remainingCards - 1 === 0) {
-    isGameWon = 1;
+  //Compare user attribute and opponent attribute
+  if (
+    selectedAttributeIndex === 4 &&
+    selectedAttributeValue < opponentSelectedAttributeValue
+  ) {
+    room.user_wins_count += 1;
+  } else if (selectedAttributeValue > opponentSelectedAttributeValue) {
+    room.user_wins_count += 1;
   }
 
-  for (let i = 0; i < 526000; i++) {}
-  res.send({
-    remainingCards: remainingCards - 1,
-    activePlayer: playersData[Math.floor(Math.random() * playersData.length)],
+  //Update used cards index
+  if (room.user_used_players)
+    room.user_used_players.push(room.user_active_index);
+  else room.user_used_players = [room.user_active_index];
+
+  if (room.opponent_used_players)
+    room.opponent_used_players.push(room.opponent_active_index);
+  else room.opponent_used_players = [room.opponent_active_index];
+
+  //Check game finished or not based on remaining card
+  if (room.user_used_players?.length === room.user_cards.length) {
+    if (room.user_wins_count > Math.floor(room.user_cards.length / 2)) {
+      isGameWon = 1;
+      //update reward points to user
+      await updateOne(
+        "user",
+        `user_id = ${authenticatedUser.user_id}`,
+        `points = points + ${global.ROOM_REWARD}`
+      );
+
+      //get reward card and add to user
+      room.rewardCard =
+        global.REWARD_CARDS[
+          Math.floor(Math.random() * global.REWARD_CARDS.length)
+        ];
+      await insertOne("cards", {
+        user_id: authenticatedUser.user_id,
+        master_card_id: room.rewardCard.rank,
+      });
+    }
+    //close room
+    room.status = 0;
+  } else {
+    //get random index from available index of players
+    let userAvailableIndex = [];
+    for (let i = 0; i < room.user_cards.length; i++) {
+      if (
+        !room.user_used_players ||
+        (room.user_used_players && room.user_used_players.indexOf(i) === -1)
+      ) {
+        userAvailableIndex.push(i);
+      }
+    }
+    room.user_active_index =
+      userAvailableIndex[Math.floor(Math.random() * userAvailableIndex.length)];
+
+    let opponentAvailableIndex = [];
+    for (let i = 0; i < room.user_cards.length; i++) {
+      if (
+        !room.opponent_used_players ||
+        (room.opponent_used_players &&
+          room.opponent_used_players.indexOf(i) === -1)
+      ) {
+        opponentAvailableIndex.push(i);
+      }
+    }
+    room.opponent_active_index =
+      opponentAvailableIndex[
+        Math.floor(Math.random() * opponentAvailableIndex.length)
+      ];
+  }
+
+  //update updated room data
+  await updateOne(
+    "room",
+    `room_id = ${roomId}`,
+    `user_wins_count = ${
+      room.user_wins_count
+    },opponent_used_players = '${JSON.stringify(
+      room.opponent_used_players
+    )}',user_used_players = '${JSON.stringify(
+      room.user_used_players
+    )}',user_active_index = ${room.user_active_index},opponent_active_index = ${
+      room.opponent_active_index
+    },status = ${room.status}`
+  );
+
+  return sendResponse(res, "SUCCESS", {
+    remainingCards: room.user_cards.length - room.user_used_players?.length,
+    activePlayer: room.user_cards[room.user_active_index],
     isGameWon,
-    reward: playersData[Math.floor(Math.random() * playersData.length)],
-    opponentCard: playersData[Math.floor(Math.random() * playersData.length)],
-    resultPoints: Math.floor(Math.random() * 100),
+    reward: room.rewardCard,
+    opponentCard: room.opponent_cards[room.opponent_active_index],
+    resultPoints: global.ROOM_REWARD,
   });
 };
