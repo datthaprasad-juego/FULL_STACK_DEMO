@@ -32,13 +32,13 @@ const Card = ({ playerDetails, onBetClick, showAttributes = true }) => {
       <CardTitle>{playerDetails.name}</CardTitle>
       {showAttributes && (
         <CardDetails>
-          <Attribute id="1" name="Rank" onClick={ClickHandler}>
+          <Attribute id="3" name="Rank" onClick={ClickHandler}>
             {playerDetails.rank}
           </Attribute>
           <Attribute id="2" name="Best" onClick={ClickHandler}>
             {playerDetails.best}
           </Attribute>
-          <Attribute id="3" name="100's" onClick={ClickHandler}>
+          <Attribute id="1" name="100's" onClick={ClickHandler}>
             {playerDetails.centuries}
           </Attribute>
           <Attribute id="4" name="Six's" onClick={ClickHandler}>

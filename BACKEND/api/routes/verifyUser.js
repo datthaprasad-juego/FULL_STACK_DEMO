@@ -22,7 +22,12 @@ module.exports = async (req, res) => {
   if (result) {
     let cards = [];
     global.DEFAULT_CARDS.forEach((data) => {
-      cards.push({ user_id: user.user_id, master_card_id: data.rank });
+      cards.push({
+        user_id: user.user_id,
+        master_card_id: data.rank,
+        status: 1,
+        created_at: new Date(),
+      });
     });
     await insertMany("cards", cards);
     return sendResponse(res, "SUCCESS", {});

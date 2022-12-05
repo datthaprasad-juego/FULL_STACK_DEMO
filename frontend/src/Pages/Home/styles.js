@@ -73,3 +73,27 @@ export const MainText = styled.h1`
   user-select: none;
   padding: 0.5rem;
 `;
+
+
+//test
+export const LoginContainer = styled.div`
+  width: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center; 
+`
+
+export const LoginLottieContainer = styled.div`
+  width: 50%;
+  backdrop-filter: blur(12px);
+`
+
+export const LoginForm = styled.div`
+  width: 50%;
+  text-align: center;
+  margin: auto;
+  background-color: transparent;
+`
+export const Form = styled.form`
+  background-color: red;
+`

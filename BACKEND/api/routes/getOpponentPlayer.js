@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
   if (user) {
     const playerDetail = {
       user_id: user.user_id,
-      points: authenticatedUser.points,
+      points: user.points,
       name: user.name,
     };
 

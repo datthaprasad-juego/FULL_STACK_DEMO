@@ -1,10 +1,8 @@
-const connection = require("../connection");
-
 const findAll = async (table, where) => {
   try {
-    const con = await connection();
     const query = `SELECT * FROM ${table} WHERE ${where}`;
-    return (await con.execute(query))[0];
+
+    return (await process.env.SQL_MANAGER.execute(query))[0];
   } catch (err) {
     console.log("findAll", err);
     return;
@@ -13,9 +11,9 @@ const findAll = async (table, where) => {
 
 const findOne = async (table, where) => {
   try {
-    const con = await connection();
     const query = `SELECT * FROM ${table} WHERE ${where} LIMIT 1`;
-    return (await con.execute(query))[0][0];
+
+    return (await process.env.SQL_MANAGER.execute(query))[0][0];
   } catch (err) {
     console.log("findOne", err);
     return;
@@ -24,12 +22,14 @@ const findOne = async (table, where) => {
 
 const insertOne = async (table, data = {}) => {
   try {
-    const con = await connection();
     const query = `INSERT INTO ${table}(${Object.keys(data).map(
       (key) => key
     )}) VALUES (${Object.values(data).map((value) => `'${value}'`)})`;
 
-    const { insertId, affectedRows } = (await con.execute(query))[0];
+    const { insertId, affectedRows } = (
+      await process.env.SQL_MANAGER.execute(query)
+    )[0];
+
     return { insertId, affectedRows };
   } catch (err) {
     console.log("insertOne", err);
@@ -39,14 +39,16 @@ const insertOne = async (table, data = {}) => {
 
 const insertMany = async (table, datas = []) => {
   try {
-    const con = await connection();
     const query = `INSERT INTO ${table}(${Object.keys(datas[0]).map(
       (key) => key
     )}) VALUES ${datas.map(
       (data) => `(${Object.values(data).map((value) => `'${value}'`)})`
     )}`;
 
-    const { insertId, affectedRows } = (await con.execute(query))[0];
+    const { insertId, affectedRows } = (
+      await process.env.SQL_MANAGER.execute(query)
+    )[0];
+
     return { insertId, affectedRows };
   } catch (err) {
     console.log("insertOne", err);
@@ -56,10 +58,10 @@ const insertMany = async (table, datas = []) => {
 
 const updateOne = async (table, where, update) => {
   try {
-    const con = await connection();
     const query = `UPDATE ${table} SET ${update} WHERE ${where}`;
 
-    const { affectedRows } = (await con.execute(query))[0];
+    const { affectedRows } = (await process.env.SQL_MANAGER.execute(query))[0];
+
     return { affectedRows };
   } catch (err) {
     console.log("updateOne", err);

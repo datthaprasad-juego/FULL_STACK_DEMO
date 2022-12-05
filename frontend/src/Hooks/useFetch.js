@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import fetch from "./fetch";
 
-const useFetch = (url, method, input) => {
+const useFetch = (url, method, input, accessToken) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await fetch(url, method, input);
+      const { data, error } = await fetch(url, method, input, accessToken);
       if (data) setData(data);
       if (error) setError(error);
       setLoading(false);

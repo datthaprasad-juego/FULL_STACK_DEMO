@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import ThemeContext from "../Context/themeContext";
 
 const useAuth = () => {
-  const { userData } = useContext(ThemeContext);
+  const { userData } = useContext(ThemeContext); 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!userData.accessToken) {
+    if (!userData.access_token) {
       navigate("/");
     }
   }, [userData, navigate]);

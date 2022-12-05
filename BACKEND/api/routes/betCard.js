@@ -7,6 +7,9 @@ module.exports = async (req, res) => {
   const { selectedAttributeIndex, selectedAttributeValue, roomId } = req.body;
   const { access_token } = req.headers;
 
+  if (isNaN(selectedAttributeIndex) || !selectedAttributeValue || !roomId)
+    return sendResponse(res, "INPUTS_MISSING", {});
+
   //Variables
   let isGameWon = 0;
 
@@ -17,8 +20,14 @@ module.exports = async (req, res) => {
   //Validate room
   const room = await findOne("room", `room_id = ${roomId} AND status = 1`);
   if (!room || room.user_id != authenticatedUser.user_id) {
-    return sendResponse(res, "FAILED", {});
+    return sendResponse(res, "INVALID_ROOM", {});
   }
+
+  //parse data
+  room.user_cards = JSON.parse(room.user_cards);
+  room.opponent_cards = JSON.parse(room.opponent_cards);
+  room.user_used_players = JSON.parse(room.user_used_players);
+  room.opponent_used_players = JSON.parse(room.opponent_used_players);
 
   //Get opponent Active Card
   const opponentCard = room.opponent_cards[room.opponent_active_index];
@@ -28,8 +37,9 @@ module.exports = async (req, res) => {
     opponentCard[opponentSelectedAttribute];
 
   //Compare user attribute and opponent attribute
+
   if (
-    selectedAttributeIndex === 4 &&
+    selectedAttributeIndex === global.RANK_INDEX &&
     selectedAttributeValue < opponentSelectedAttributeValue
   ) {
     room.user_wins_count += 1;
@@ -65,10 +75,12 @@ module.exports = async (req, res) => {
       await insertOne("cards", {
         user_id: authenticatedUser.user_id,
         master_card_id: room.rewardCard.rank,
+        created_at: new Date(),
       });
     }
     //close room
     room.status = 0;
+    room.rewardCard = JSON.stringify(room.rewardCard);
   } else {
     //get random index from available index of players
     let userAvailableIndex = [];
@@ -111,7 +123,9 @@ module.exports = async (req, res) => {
       room.user_used_players
     )}',user_active_index = ${room.user_active_index},opponent_active_index = ${
       room.opponent_active_index
-    },status = ${room.status}`
+    },status = ${room.status}
+     ${room.rewardCard ? `,reward_card='${room.rewardCard}'` : ""}
+    `
   );
 
   return sendResponse(res, "SUCCESS", {
@@ -119,7 +133,7 @@ module.exports = async (req, res) => {
     activePlayer: room.user_cards[room.user_active_index],
     isGameWon,
     reward: room.rewardCard,
-    opponentCard: room.opponent_cards[room.opponent_active_index],
+    opponentCard: opponentCard,
     resultPoints: global.ROOM_REWARD,
   });
 };

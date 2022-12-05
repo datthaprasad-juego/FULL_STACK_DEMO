@@ -5,21 +5,25 @@ import {
   Container,
   FoundCard,
   PlayerDetails,
-  PlayerName,
   Text,
   Value,
 } from "./styles";
 import { CustomButton } from "../../Components/Button";
 import useAuth from "../../Hooks/useAuth";
+import { useContext } from "react";
+import ThemeContext from "../../Context/themeContext";
+import { useNavigate } from "react-router-dom";
 
 const Search = () => {
+  const navigate = useNavigate();
   useAuth();
+  const { userData } = useContext(ThemeContext);
+
   const { data, loading, error } = useFetch(
-    "http://localhost:5000/getOpponentPlayer",
-    "POST",
-    {
-      userId: 1,
-    }
+    process.env.REACT_APP_BACKEND_ENDPOINT + "/getOpponentPlayer",
+    "GET",
+    {},
+    userData.access_token
   );
 
   if (loading) {
@@ -35,7 +39,7 @@ const Search = () => {
     );
   }
 
-  if (error) return <div>Error...</div>;
+  if (error) return <div>Error...{error}</div>;
 
   return (
     <Container>
@@ -58,7 +62,8 @@ const Search = () => {
       </FoundCard>
       <CustomButton
         content={"Start Game"}
-        onClick={() => (window.location = "/battle")}
+        onClick={() => navigate("/battle:"+data.playerDetail.user_id)}
+        // onClick={initiateGame}
       />
     </Container>
   );

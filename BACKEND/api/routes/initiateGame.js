@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     `user_id = ${opponent_user_id} AND is_verified_user = 1`
   );
   if (!opponentUser || authenticatedUser.user_id === opponent_user_id)
-    return sendResponse(res, "FAILED", {});
+    return sendResponse(res, "OPPONENT_NOT_FOUND", {});
 
   //deduct points to initiate game
   if (authenticatedUser.points < global.ROOM_INITIATE_COST)
@@ -24,6 +24,10 @@ module.exports = async (req, res) => {
     `user_id = ${authenticatedUser.user_id}`,
     `points = points - ${global.ROOM_INITIATE_COST}`
   );
+
+  //parsing the data
+  authenticatedUser.game_cards = JSON.parse(authenticatedUser.game_cards);
+  opponentUser.game_cards = JSON.parse(opponentUser.game_cards);
 
   const userActivePlayerIndex = Math.floor(
     Math.random() * authenticatedUser.game_cards.length
@@ -59,6 +63,9 @@ module.exports = async (req, res) => {
       status: 1,
       user_active_index: userActivePlayerIndex,
       opponent_active_index: opponentActiveIndex,
+      user_used_players: JSON.stringify([]),
+      opponent_used_players: JSON.stringify([]),
+      created_at: new Date(),
     });
     activeRoom = { room_id: insertId };
   }

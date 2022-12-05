@@ -12,28 +12,38 @@ import fetch from "../../Hooks/fetch";
 import LostScene from "../../Scenes/LostScene";
 import WinScene from "../../Scenes/winScene";
 import ResultScene from "../../Scenes/resultAfterBetScene";
+import { useParams } from "react-router-dom";
 
 const GamePlay = () => {
-  const { setPopup } = useContext(ThemeContext);
+  const { setPopup, userData } = useContext(ThemeContext);
   const [showPopup, setShowPopup] = useState(false);
-
+  const { id } = useParams();
   //TODO : useEffect and fetch data from server only one time
   let {
     data,
     loading: isLoading,
     error,
-  } = useFetch("http://localhost:5000/initiateGame", "get");
+  } = useFetch(
+    process.env.REACT_APP_BACKEND_ENDPOINT + "/initiateGame",
+    "post",
+    { opponent_user_id: Number(id.replace(":", "")) },
+    userData.access_token
+  );
 
   const onBetClick = async ({
     selectedAttributeIndex = null,
     selectedAttributeValue = null,
   }) => {
     setPopup("", true);
-    await onBetClickFetchResponse(data, {
-      selectedAttributeIndex,
-      selectedAttributeValue,
-      remainingCards: data.remainingCards,
-    });
+    await onBetClickFetchResponse(
+      data,
+      {
+        selectedAttributeIndex: Number(selectedAttributeIndex),
+        selectedAttributeValue: Number(selectedAttributeValue),
+        roomId: data.room_id,
+      },
+      userData.access_token
+    );
     setShowPopup(true);
     setPopup();
   };
@@ -118,14 +128,19 @@ const GamePlay = () => {
   );
 };
 
-const onBetClickFetchResponse = async (data, input) => {
-  let response = await fetch("http://localhost:5000/betCard", "post", input);
+async function onBetClickFetchResponse(data, input, token) {
+  let response = await fetch(
+    process.env.REACT_APP_BACKEND_ENDPOINT + "/betCard",
+    "post",
+    input,
+    token
+  );
   data.remainingCards = response.data.remainingCards;
   data.activePlayer = response.data.activePlayer;
   data.isGameWon = response.data.isGameWon;
   data.reward = response.data.reward;
   data.opponentCard = response.data.opponentCard;
   data.resultPoints = response.data.resultPoints;
-};
+}
 
 export default GamePlay;

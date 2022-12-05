@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CustomButton } from "../../Components/Button";
+import constants from "../../Constants";
 import ThemeContext from "../../Context/themeContext";
 import fetch from "../../Hooks/fetch";
 import { validateEmailAndPasswordAndName } from "./helper";
@@ -12,7 +13,7 @@ const JoinUs = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (userData.accessToken) {
+    if (userData.access_token) {
       navigate("/");
     }
   }, [userData, navigate]);
@@ -28,11 +29,13 @@ const JoinUs = () => {
 
     setIsLoading(true);
     const { data, error } = await fetch(
-      "http://localhost:5000/joinUs",
+      process.env.REACT_APP_BACKEND_ENDPOINT + "/joinUs",
       "post",
       {
         email,
         password,
+        is_login: 1,
+        name,
       }
     );
     setIsLoading(false);
@@ -42,7 +45,7 @@ const JoinUs = () => {
       setPopup(<h2>Verification mail sent</h2>, false);
     }
     if (data && !data.verificationMailSent) {
-      console.log({ data });
+      localStorage.setItem(constants.CRICKET_USER_DATA, JSON.stringify(data));
       setUserData({ ...data });
       navigate("/");
     }

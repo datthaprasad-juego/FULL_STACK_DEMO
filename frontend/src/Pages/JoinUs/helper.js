@@ -19,10 +19,7 @@ export const validateEmailAndPasswordAndName = (email, password,name) => {
     alert("Please enter a valid email");
     return;
   }
-  if (email.indexOf("@") > email.indexOf(".")) {
-    alert("Please enter a valid email");
-    return;
-  }
+  
   if (email.indexOf("@") === 0) {
     alert("Please enter a valid email");
     return;

@@ -12,10 +12,9 @@ const { sendResponse } = require("../response");
 module.exports = async (req, res) => {
   const { name, email, password, is_login } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).send({
-      message: "Please fill all the fields",
-    });
+  //validation
+  if (!email || !password || (!is_login && !name)) {
+    return sendResponse(res, "INPUTS_MISSING", {});
   }
 
   // Find if user exist or not
@@ -40,13 +39,13 @@ module.exports = async (req, res) => {
         points: user.points,
       });
     } else {
-      return sendResponse(res, "FAILED", {});
+      return sendResponse(res, "USER_NOT_FOUND", {});
     }
   } else {
     /* <----------- FOR REGISTRATION --------------> */
     if (user && user.is_verified_user) {
       return sendResponse(res, "DUPLICATE_EMAIL", {});
-    } else if (user) {
+    } else if (user && !user.is_verified_user) {
       const otp = generateOtp();
       //send email to verify
       if (await sendVerificationEmailForRegistration(email, otp)) {
@@ -60,7 +59,7 @@ module.exports = async (req, res) => {
         );
         return sendResponse(res, "SUCCESS", response);
       } else {
-        return sendResponse(res, "FAILED", {});
+        return sendResponse(res, "INVALID_EMAIL", {});
       }
     } else {
       const otp = generateOtp();
@@ -75,12 +74,13 @@ module.exports = async (req, res) => {
           is_verified_user: 0,
           status: global.USER_STATUS.REGISTERED,
           otp,
+          created_at: new Date()
         };
 
         const response = await insertOne("user", userData);
         return sendResponse(res, "SUCCESS", response);
       } else {
-        return sendResponse(res, "FAILED", {});
+        return sendResponse(res, "INVALID_EMAIL", {});
       }
     }
   }

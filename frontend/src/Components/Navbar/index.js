@@ -18,8 +18,9 @@ import {
 const Navbar = ({ active }) => {
   const [expand, setExpand] = useState(0);
   const { HandleThemeChange, userData } = useContext(ThemeContext);
+
   let navigations;
-  if (userData.accessToken) navigations = naviagtion.CRICKET;
+  if (userData.access_token) navigations = naviagtion.CRICKET;
   else navigations = naviagtion.PRE_ACCOUNT;
   return (
     <Conatiner>
@@ -40,7 +41,11 @@ const Navbar = ({ active }) => {
               <Navigation key={key}>
                 <Text
                   to={navigation.link}
-                  active={navigation.content.toLowerCase() === active}
+                  active={
+                    navigation.content.toLowerCase() === active
+                      ? "true"
+                      : undefined
+                  }
                 >
                   {navigation.content}
                 </Text>

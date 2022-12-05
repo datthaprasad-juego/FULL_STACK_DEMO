@@ -10,6 +10,7 @@ const connection = async () => {
       password: DATABASE_PASSWORD,
       database: DATABASE,
     });
+    console.log("DATABASE CONNECTED...");
 
     await con.connect();
     return con;

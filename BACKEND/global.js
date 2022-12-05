@@ -3,6 +3,7 @@ const global = {};
 global.DEFAULT_POINTS = 500;
 global.ROOM_INITIATE_COST = 50;
 global.ROOM_REWARD = 100;
+global.RANK_INDEX = 3;
 
 global.USER_STATUS = {
   REGISTERED: 0,

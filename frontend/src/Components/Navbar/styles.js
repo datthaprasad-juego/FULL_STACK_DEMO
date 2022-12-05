@@ -99,7 +99,7 @@ export const Text = styled(Link)`
     position: absolute;
     bottom: -0.5rem;
     left: 0;
-    transform: ${({ active }) => (active ? `scale(1)` : `scale(0)`)};
+    transform: ${({ active }) => {return active ? `scale(1)` : `scale(0)`}};
     transition: transform 0.2s ease-in;
   }
 

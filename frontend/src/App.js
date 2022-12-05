@@ -1,6 +1,5 @@
 import { Router } from "./Routes/index";
 import React from "react";
-
 import GlobalStyle from "./Global/styles.js";
 import { HelpButton } from "./Components/Button";
 import ThemeContext from "./Context";

@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
   res.send("Server works fine!...");
 });
 
-router.get("/initiateGame", initiateGame);
+router.post("/initiateGame", initiateGame);
 
 router.post("/betCard", betCard);
 
