@@ -3,7 +3,7 @@ const global = {};
 global.DEFAULT_POINTS = 500;
 global.ROOM_INITIATE_COST = 50;
 global.ROOM_REWARD = 100;
-global.RANK_INDEX = 3;
+global.RANK_INDEX = 1;
 
 global.USER_STATUS = {
   REGISTERED: 0,
@@ -86,5 +86,13 @@ global.REWARD_CARDS = [
     trophie: 12,
   },
 ];
+global.CARD_INDEX = {
+  1: "rank",
+  2: "best",
+  3: "centuries",
+  4: "six",
+  5: "four",
+  6: "trophie",
+};
 
 module.exports = global;

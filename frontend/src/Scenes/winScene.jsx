@@ -21,6 +21,7 @@ const Text = styled.p`
 `;
 
 const WinScene = ({ reward }) => {
+  if(typeof reward==="string") reward = JSON.parse(reward)
   return (
     <Popup
       popupContent={

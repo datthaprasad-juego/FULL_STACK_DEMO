@@ -39,7 +39,7 @@ const Search = () => {
     );
   }
 
-  if (error) return <div>Error...{error}</div>;
+  if (error) return navigate("/");
 
   return (
     <Container>
@@ -62,7 +62,7 @@ const Search = () => {
       </FoundCard>
       <CustomButton
         content={"Start Game"}
-        onClick={() => navigate("/battle:"+data.playerDetail.user_id)}
+        onClick={() => navigate("/battle:" + data.playerDetail.user_id)}
         // onClick={initiateGame}
       />
     </Container>

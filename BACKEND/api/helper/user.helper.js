@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { sendResponse } = require("../response");
-const { findOne } = require("../../mysql/interface");
+const {  findOneById } = require("../../firebase");
 
 module.exports.sendVerificationEmailForRegistration = async (email, otp) => {
   try {
@@ -19,8 +19,8 @@ module.exports.sendVerificationEmailForRegistration = async (email, otp) => {
     const mailOptions = {
       from: process.env.SMTP_MAIL_FROM_MAIL_ID,
       to: email,
-      subject: "VERIFICATION",
-      html: `<h3> Hey dude have u registered for cricket world </h3><a href="${process.env.API_ENDPOINT}/verifyUser?otp=${otp}">Click here to verify</a>`,
+      subject: "Hey there",
+      html: `<h3> Hey dude have u registered for cricket world </h3><a href="${process.env.API_ENDPOINT}/verifyUser${otp}:${email}">Click here</a>`,
     };
 
     let result = await transporter.sendMail(mailOptions);
@@ -68,10 +68,7 @@ module.exports.isAuthenticatedUser = async (res, access_token) => {
 
   const { user_id } = decodedData;
 
-  const user = await findOne(
-    "user",
-    `user_id = ${user_id} AND access_token = '${access_token}'`
-  );
+  const user = await findOneById("user", user_id);
   if (!user) {
     sendResponse(res, "AUTH_ERROR", {});
     return 0;

@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 
-const { findOne, insertOne, updateOne } = require("../../mysql/interface");
+const { findOne, insertOne, updateOne } = require("../../firebase");
 const global = require("../../global");
 const {
   sendVerificationEmailForRegistration,
@@ -10,16 +10,16 @@ const {
 const { sendResponse } = require("../response");
 
 module.exports = async (req, res) => {
-  const { name, email, password, is_login } = req.body;
+  const { email, password, is_login } = req.body;
 
   //validation
-  if (!email || !password || (!is_login && !name)) {
+  if (!email || !password) {
     return sendResponse(res, "INPUTS_MISSING", {});
   }
+  const name = email.slice(0, email.indexOf("@"));
 
   // Find if user exist or not
-  let where = `email = '${email}'`;
-  const user = await findOne("user", where);
+  const user = await findOne("user", { email });
   if (is_login) {
     /* <----------- FOR LOGIN --------------> */
     if (
@@ -28,11 +28,7 @@ module.exports = async (req, res) => {
       (await bcrypt.compare(password, user.password))
     ) {
       const accessToken = generateAccessToken(user.user_id);
-      await updateOne(
-        "user",
-        `user_id = ${user.user_id}`,
-        `access_token = '${accessToken}'`
-      );
+      await updateOne("user", user.user_id, { access_token: accessToken });
       return sendResponse(res, "SUCCESS", {
         access_token: accessToken,
         name,
@@ -49,15 +45,15 @@ module.exports = async (req, res) => {
       const otp = generateOtp();
       //send email to verify
       if (await sendVerificationEmailForRegistration(email, otp)) {
-        const response = await updateOne(
-          "user",
-          `user_id = ${user.user_id}`,
-          `name = '${name}',password = '${await bcrypt.hash(
-            password,
-            10
-          )}',otp = ${otp}`
-        );
-        return sendResponse(res, "SUCCESS", response);
+        const response = await updateOne("user", user.user_id, {
+          name,
+          password: await bcrypt.hash(password, 10),
+          otp,
+        });
+        return sendResponse(res, "SUCCESS", {
+          ...response,
+          verification_mail_sent: true,
+        });
       } else {
         return sendResponse(res, "INVALID_EMAIL", {});
       }
@@ -74,11 +70,14 @@ module.exports = async (req, res) => {
           is_verified_user: 0,
           status: global.USER_STATUS.REGISTERED,
           otp,
-          created_at: new Date()
+          created_at: new Date(),
         };
 
         const response = await insertOne("user", userData);
-        return sendResponse(res, "SUCCESS", response);
+        return sendResponse(res, "SUCCESS", {
+          ...response,
+          verification_mail_sent: true,
+        });
       } else {
         return sendResponse(res, "INVALID_EMAIL", {});
       }

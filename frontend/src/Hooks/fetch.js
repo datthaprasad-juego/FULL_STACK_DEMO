@@ -9,6 +9,7 @@ const fetch = async (url, method, body, token) => {
       data: body,
       headers: { access_token: token },
     });
+    console.log({ response });
     if (
       response.data &&
       response.data.responseCode === constants.RESPONSE_CODE.SUCCESS

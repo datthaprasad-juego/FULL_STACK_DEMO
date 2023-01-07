@@ -1,4 +1,4 @@
-const { findOne } = require("../../mysql/interface");
+const { findAll } = require("../../firebase");
 const { isAuthenticatedUser } = require("../helper/user.helper");
 const { sendResponse } = require("../response");
 
@@ -7,10 +7,15 @@ module.exports = async (req, res) => {
   const authenticatedUser = await isAuthenticatedUser(res, access_token);
   if (!authenticatedUser) return;
 
-  const user = await findOne(
-    "user",
-    `user_id != ${authenticatedUser.user_id} AND is_verified_user = 1 ORDER BY RAND()`
-  );
+  const users = (
+    await findAll("user", {
+      is_verified_user: 1,
+    })
+  ).filter(({ user_id }) => user_id != authenticatedUser.user_id);
+
+  if (!users.length)
+    return sendResponse(res, "FAILED", { reason: "no_players" });
+  const user = users[Math.floor(Math.random() * users.length)];
 
   if (user) {
     const playerDetail = {
@@ -19,10 +24,10 @@ module.exports = async (req, res) => {
       name: user.name,
     };
 
-    return sendResponse(res, "SUCCESS", {
+    sendResponse(res, "SUCCESS", {
       playerDetail,
     });
   } else {
-    return sendResponse(res, "FAILED", {});
+    sendResponse(res, "FAILED", {});
   }
 };

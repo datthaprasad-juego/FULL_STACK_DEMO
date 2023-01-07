@@ -26,7 +26,7 @@ const GamePlay = () => {
   } = useFetch(
     process.env.REACT_APP_BACKEND_ENDPOINT + "/initiateGame",
     "post",
-    { opponent_user_id: Number(id.replace(":", "")) },
+    { opponent_user_id: id.replace(":", "") },
     userData.access_token
   );
 
